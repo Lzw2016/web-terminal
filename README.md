@@ -1,5 +1,4 @@
-# web-terminal
-Web终端
+# web-terminal Web终端
 
 ### 1.Window平台效果
 
