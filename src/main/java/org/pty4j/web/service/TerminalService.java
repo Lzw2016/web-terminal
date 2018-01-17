@@ -66,7 +66,7 @@ public class TerminalService {
         Map<String, String> envs = new HashMap<>(System.getenv());
         envs.put("TERM", "xterm");
         String userHome = System.getProperty("user.home");
-        this.process = PtyProcess.exec(termCommand, envs, userHome);
+        this.process = PtyProcess.exec(termCommand, envs, userHome, false, false, null);
 
         process.setWinSize(new WinSize(columns, rows));
         this.inputReader = process.getInputStream();
