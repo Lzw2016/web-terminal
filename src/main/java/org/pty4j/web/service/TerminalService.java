@@ -125,6 +125,12 @@ public class TerminalService {
         }
     }
 
+    public void destroy() {
+        if (process != null) {
+            process.destroy();
+        }
+    }
+
     public void setWebSocketSession(WebSocketSession webSocketSession) {
         this.webSocketSession = webSocketSession;
     }
