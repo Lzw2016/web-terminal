@@ -18,21 +18,63 @@ public class Test01 {
                 .fg(Ansi.Color.RED)
                 .a("Hello")
                 .fg(Ansi.Color.GREEN)
-                .a(" World")
+                .a(" World ")
                 .reset()
+                .a("AAA")
                 .toString();
         System.out.println(str);
 
 
         str = Ansi
                 .ansi()
-                .eraseScreen()
-                .a("11111111111111111111111111111111\r\n")
-                .a(" 222222222222222222222\r\n")
-                .cursorUp(2)
-                .a("55")
-                .reset()
-                .a("33")
+                .reset() // 清除颜色 \033[m
+
+                .eraseScreen() // 清除屏幕 \033[2J
+                .eraseScreen(Ansi.Erase.BACKWARD) // 清除屏幕 \033[1J
+                .eraseScreen(Ansi.Erase.FORWARD) // 清除屏幕 \033[0J
+                .eraseLine() //清除一行 \033[K
+                .eraseLine(Ansi.Erase.BACKWARD) //清除一行 \033[1K
+                .eraseLine(Ansi.Erase.FORWARD) //清除一行 \033[0K
+
+                .cursorUp(5) // 光标上移
+                .cursorDown(5) // 光标下移
+                .cursorLeft(5) // 光标左移
+                .cursorRight(5) // 光标右移
+                .cursorDownLine() // 向下换行
+                .cursorDownLine(5) // 向下换行
+                .cursorUpLine() // 向上换行
+                .cursorUpLine(5) // 向上换行
+                .cursorToColumn(5)
+                .cursor(1, 1)
+                .restoreCursorPosition() // 取出保存的光标位置来使用
+                .saveCursorPosition() // 保存目前的光标位置
+                .newline() // 回车换行
+
+
+                .render("@|red Hello|@ @|green World|@")
+                .render("@|red %1$s|@ @|green %2$s|@", "Hello", "World")
+
+                .fg(Ansi.Color.RED)
+                .bg(Ansi.Color.WHITE)
+                .fgBright(Ansi.Color.RED)
+                .bgBright(Ansi.Color.WHITE)
+
+                .bold()
+                .boldOff()
+
+                .scrollDown(5)
+                .scrollUp(5)
+
+                .toString();
+        System.out.println(str);
+    }
+
+    @Test
+    public void t01() {
+        String str = Ansi
+                .ansi()
+                .a("12345")
+                .a("67890")
                 .toString();
         System.out.println(str);
     }
