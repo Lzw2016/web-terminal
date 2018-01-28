@@ -36,10 +36,9 @@ public class TerminalSocket extends TextWebSocketHandler {
             String type = messageMap.get("type");
             switch (type) {
                 case "TERMINAL_INIT":
-                    terminalService.onTerminalInit();
+                    terminalService.initializeProcess();
                     break;
                 case "TERMINAL_READY":
-                    terminalService.onTerminalReady();
                     break;
                 case "TERMINAL_COMMAND":
                     terminalService.onCommand(messageMap.get("command"));

@@ -1,9 +1,10 @@
 package org.pty4j.web.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Maps;
+import com.pty4j.PtyProcess;
+import com.pty4j.WinSize;
 import com.sun.jna.Platform;
-import org.pty4j.PtyProcess;
-import org.pty4j.WinSize;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.LinkedBlockingQueue;
 
+//import org.pty4j.PtyProcess;
+//import org.pty4j.WinSize;
+
 @Component
 @Scope("prototype")
 public class TerminalService {
@@ -26,8 +30,6 @@ public class TerminalService {
     @Value("${shell:#{null}}")
     private String shellStarter;
 
-    private boolean isReady;
-    private String[] termCommand;
     private PtyProcess process;
     private Integer columns = 20;
     private Integer rows = 10;
@@ -38,36 +40,20 @@ public class TerminalService {
 
     private LinkedBlockingQueue<String> commandQueue = new LinkedBlockingQueue<>();
 
-    public void onTerminalInit() {
-
-    }
-
-    public void onTerminalReady() {
-        new Thread(() -> {
-            isReady = true;
-            try {
-                initializeProcess();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }).start();
-    }
-
-    private void initializeProcess() throws Exception {
+    public void initializeProcess() throws Exception {
+        Map<String, String> envs = Maps.newHashMap(System.getenv());
+        String[] termCommand;
         if (Platform.isWindows()) {
-            this.termCommand = "cmd.exe".split("\\s+");
+            termCommand = new String[]{"cmd.exe"};
         } else {
-            this.termCommand = "/bin/bash -i".split("\\s+");
+            termCommand = new String[]{"/bin/bash", "--login"};
+            envs.put("TERM", "xterm");
         }
-
         if (Objects.nonNull(shellStarter)) {
-            this.termCommand = shellStarter.split("\\s+");
+            termCommand = shellStarter.split("\\s+");
         }
-        Map<String, String> envs = new HashMap<>(System.getenv());
-        envs.put("TERM", "xterm");
         String userHome = System.getProperty("user.home");
         this.process = PtyProcess.exec(termCommand, envs, userHome, false, false, null);
-
         process.setWinSize(new WinSize(columns, rows));
         this.inputReader = process.getInputStream();
         this.errorReader = process.getErrorStream();
@@ -75,7 +61,7 @@ public class TerminalService {
 
         new Thread(() -> printReader(inputReader)).start();
         new Thread(() -> printReader(errorReader)).start();
-        process.waitFor();
+        // process.waitFor();
     }
 
     public void print(String text) throws IOException {
