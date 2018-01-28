@@ -77,6 +77,14 @@
             <version>1.16</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.jline</groupId>
+            <artifactId>jline</artifactId>
+            <version>3.5.2</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
