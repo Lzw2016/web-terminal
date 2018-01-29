@@ -7,7 +7,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class HomeController {
 
     @RequestMapping("/")
-    public String home(){
+    public String home() {
         return "home";
+    }
+
+    @RequestMapping("/xterm")
+    public String xterm() {
+        return "xterm";
     }
 }
