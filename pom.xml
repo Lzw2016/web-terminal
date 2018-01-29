@@ -27,6 +27,10 @@
             <url>http://www.sparetimelabs.com/maven2/</url>
         </repository>
         <repository>
+            <id>my-maven-snapshots</id>
+            <url>http://39.108.68.132:8081/repository/maven-snapshots/</url>
+        </repository>
+        <repository>
             <id>my-maven-releases</id>
             <url>http://39.108.68.132:8081/repository/maven-releases/</url>
         </repository>
