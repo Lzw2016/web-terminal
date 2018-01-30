@@ -12,31 +12,43 @@
     <script src="xterm/addons/terminado/terminado.js"></script>
     <title>xterm</title>
 </head>
-<body>
-<div class="container">
-    <div id="terminal-container" style="height: 500px"></div>
-</div>
+<body style="margin: 0;padding: 0;overflow: hidden;cursor: text;user-select: none;">
+<div id="terminal-container" style="margin: 0;padding: 0;position: absolute; width: 100%; height: 100%;"></div>
+
 <script>
     Terminal.applyAddon(fit);
     Terminal.applyAddon(terminado);
     Terminal.applyAddon(fullscreen);
 
+    var terminalContainer = document.getElementById('terminal-container');
+    // cols: 80,
+    // rows: 24,
+    // convertEol: false,
+    // termName: 'xterm',
+    // cursorBlink: false,
+    // cursorStyle: 'block',
+    // bellSound: BellSound,
+    // bellStyle: 'none',
+    // enableBold: true,
+    // fontFamily: 'courier-new, courier, monospace',
+    // fontSize: 15,
+    // lineHeight: 1.0,
+    // letterSpacing: 0,
+    // scrollback: 1000,
+    // screenKeys: false,
+    // debug: false,
+    // cancelEvents: false,
+    // disableStdin: false,
+    // useFlowControl: false,
+    // tabStopWidth: 8,
+    // theme: null
     var term = new Terminal({
-        debug: false,
+        cursorBlink: true,
+        cursorStyle: 'underline', // block underline bar
         enableBold: false,
         bellStyle: "sound",
         fontFamily: '"DejaVu Sans Mono", "Everson Mono", FreeMono, Menlo, Terminal, monospace, Consolas',
-        fontSize: 15,
-        lineHeight: 1.0,
-        letterSpacing: 0,
-        scrollback: 10000,
-        screenKeys: true,
-        useFlowControl: true,
-        tabStopWidth: 4,
-        cols: 80,
-        rows: 20,
-        cursorBlink: true,
-        cursorStyle: 'bar' // block underline bar
+        tabStopWidth: 4
     });
 
     var protocol = (location.protocol === 'https:') ? 'wss://' : 'ws://';
@@ -46,9 +58,8 @@
         term.terminadoAttach(sock);
         term.fit();
     });
-    term.open(document.getElementById('terminal-container'));
-    // term.toggleFullScreen();
-
+    term.open(terminalContainer);
+    term.toggleFullScreen();
     term.on("title", function (title) {
         if (!title) {
             title = 'xterm';
@@ -58,30 +69,34 @@
         document.title = title;
     });
 
-    term.on("resize", function (data) {
+    window.onresize = function () {
         term.fit();
-    });
+    };
 
-    // term.on("key", function (key, e) {
-    //     console.log(key, e);
-    // });
+    // 禁用右键菜单
+    term.element.oncontextmenu = function (event) {
+        event.returnValue = false;
+    };
+
+    // 复制内容
+    var clipboard = null;
 
     // 右键按下 - 粘贴
     term.element.addEventListener("mousedown", function (e) {
+        e.preventDefault();
         // 0-左键；1-滚轮；2-右键
-        if (e.button === 2) {
-            console.log(term.getSelection());
+        if (e.button === 2 && sock.readyState === WebSocket.OPEN && clipboard) {
+            sock.send(JSON.stringify(["stdin", clipboard]));
         }
     });
 
     // 左键抬起 - 复制
     term.element.addEventListener("mouseup", function (e) {
         // 0-左键；1-滚轮；2-右键
-        if (e.button === 0) {
-            console.log(term.getSelection());
+        if (e.button === 0 && term.hasSelection()) {
+            clipboard = term.getSelection();
         }
     });
-
 </script>
 </body>
 </html>
