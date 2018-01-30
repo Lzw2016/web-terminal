@@ -15,4 +15,14 @@ public class HomeController {
     public String xterm() {
         return "xterm";
     }
+
+    @RequestMapping("/terminado")
+    public String terminado() {
+        return "terminado";
+    }
+
+    @RequestMapping("/zmodem")
+    public String zmodem() {
+        return "zmodem";
+    }
 }

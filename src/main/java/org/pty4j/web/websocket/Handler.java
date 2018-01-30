@@ -20,6 +20,12 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public abstract class Handler extends AbstractWebSocketHandler {
 
+    private static int COUNTER = 1;
+
+    public static int getCountAndAdd() {
+        return COUNTER++;
+    }
+
     /**
      * 所有的任务
      */

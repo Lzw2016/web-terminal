@@ -1,11 +1,10 @@
-package org.pty4j.web.websocket.terminal;
+package org.pty4j.web.websocket.xterm;
 
 import com.google.common.collect.Maps;
 import com.pty4j.PtyProcess;
 import com.pty4j.WinSize;
 import com.sun.jna.Platform;
 import lombok.extern.slf4j.Slf4j;
-import org.pty4j.web.dto.response.TerminalRes;
 import org.pty4j.web.websocket.Task;
 import org.pty4j.web.websocket.TaskType;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -23,13 +22,13 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 作者： lzw<br/>
- * 创建时间：2018-01-29 11:24 <br/>
+ * 创建时间：2018-01-30 11:05 <br/>
  */
 @SuppressWarnings("Duplicates")
 @Service
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Slf4j
-public class TerminalTask extends Task {
+public class XtermTask extends Task {
 
     private String taskId = UUID.randomUUID().toString();
     private PtyProcess process;
@@ -39,19 +38,19 @@ public class TerminalTask extends Task {
     /**
      * 初始化终端 - 失败返回null
      */
-    public static TerminalTask newTerminalTask(WebSocketSession session, String taskId) {
-        TerminalTask terminalTask = new TerminalTask();
-        terminalTask.addWebSocketSession(session);
+    public static XtermTask newXtermTask(WebSocketSession session, String taskId) {
+        XtermTask xtermTask = new XtermTask();
+        xtermTask.addWebSocketSession(session);
         if (taskId != null) {
-            terminalTask.taskId = String.format("[%1$s]-%2$s", taskId, UUID.randomUUID().toString());
+            xtermTask.taskId = String.format("[%1$s]-%2$s", taskId, UUID.randomUUID().toString());
         }
         try {
-            terminalTask.initializeProcess();
+            xtermTask.initializeProcess();
         } catch (IOException e) {
             log.error("初始化终端失败", e);
             return null;
         }
-        return terminalTask;
+        return xtermTask;
     }
 
     /**
@@ -72,20 +71,20 @@ public class TerminalTask extends Task {
         String userHome = System.getProperty("user.home");
         process = PtyProcess.exec(termCommand, envs, userHome, false, false, null);
         process.setWinSize(new WinSize(80, 10));
-        new Thread(() -> printReader(process.getInputStream())).start();
-        new Thread(() -> printReader(process.getErrorStream())).start();
+        new Thread(() -> printReader(process.getInputStream(),"stdout")).start(); // stdout
+        new Thread(() -> printReader(process.getErrorStream(),"stdout")).start(); // stderr
         outputWriter = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
     }
 
     /**
      * 打印输出到终端
      */
-    private void printReader(InputStream inputStream) {
+    private void printReader(InputStream inputStream,String stdType) {
         try {
             int nRead;
             byte[] data = new byte[1024];
             while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
-                sendMessage(new TerminalRes(new String(data, 0, nRead)));
+                sendMessage(new String[]{stdType, new String(data, 0, nRead)});
             }
         } catch (Exception e) {
             log.error("Terminal Print Error", e);
@@ -160,6 +159,6 @@ public class TerminalTask extends Task {
 
     @Override
     public TaskType getTaskType() {
-        return TaskType.TerminalTask;
+        return TaskType.XtermTask;
     }
 }

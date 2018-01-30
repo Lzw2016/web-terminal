@@ -15,6 +15,8 @@
 </div>
 <script>
     Terminal.applyAddon(fit);
+
+
     var term = new Terminal(); // {cols: 200, rows: 30}
     term.open(document.getElementById('terminal-container'));
     term.fit();

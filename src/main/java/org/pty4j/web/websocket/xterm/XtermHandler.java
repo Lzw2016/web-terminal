@@ -1,11 +1,8 @@
-package org.pty4j.web.websocket.terminal;
+package org.pty4j.web.websocket.xterm;
 
 import lombok.extern.slf4j.Slf4j;
 import org.clever.common.utils.mapper.JacksonMapper;
-import org.clever.common.utils.validator.BaseValidatorUtils;
-import org.clever.common.utils.validator.ValidatorFactoryUtils;
 import org.fusesource.jansi.Ansi;
-import org.pty4j.web.dto.request.TerminalReq;
 import org.pty4j.web.dto.response.TerminalRes;
 import org.pty4j.web.websocket.Handler;
 import org.pty4j.web.websocket.Task;
@@ -13,30 +10,28 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-import javax.validation.ConstraintViolationException;
 import java.io.IOException;
 
 /**
  * 作者： lzw<br/>
- * 创建时间：2018-01-29 11:25 <br/>
+ * 创建时间：2018-01-30 11:04 <br/>
  */
 @SuppressWarnings("Duplicates")
 @Component
 @Slf4j
-public class TerminalHandler extends Handler {
-
+public class XtermHandler extends Handler {
     /**
      * 连接成功
      */
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
         log.info("建立连接");
-        TerminalTask terminalTask = TerminalTask.newTerminalTask(session, String.valueOf(getCountAndAdd()));
-        if (terminalTask == null) {
+        XtermTask xtermTask = XtermTask.newXtermTask(session, String.valueOf(getCountAndAdd()));
+        if (xtermTask == null) {
             sendErrorMessage(session, "Terminal 初始化失败");
             return;
         }
-        putAndStartTask(terminalTask);
+        putAndStartTask(xtermTask);
         log.info("Terminal 初始化完成");
     }
 
@@ -60,40 +55,31 @@ public class TerminalHandler extends Handler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         // 找出对应 Task
-        TerminalTask terminalTask = null;
+        XtermTask xtermTask = null;
         for (Task task : getAllTask()) {
-            if (task.contains(session) && task instanceof TerminalTask) {
-                terminalTask = (TerminalTask) task;
+            if (task.contains(session) && task instanceof XtermTask) {
+                xtermTask = (XtermTask) task;
                 break;
             }
         }
-        if (terminalTask == null) {
+        if (xtermTask == null) {
             sendErrorMessage(session, "未初始化 Terminal");
             return;
         }
-        TerminalReq terminalReq = JacksonMapper.nonEmptyMapper().fromJson(message.getPayload(), TerminalReq.class);
-        if (terminalReq == null) {
+        String[] req = JacksonMapper.nonEmptyMapper().fromJson(message.getPayload(), String[].class);
+        if (req == null || req.length < 2) {
             sendErrorMessage(session, "请求数据解析失败");
             return;
         }
-        // 校验参数 TerminalReq 的完整性
-        try {
-            BaseValidatorUtils.validateThrowException(ValidatorFactoryUtils.getHibernateValidator(), terminalReq);
-        } catch (ConstraintViolationException e) {
-            log.info("请求参数校验失败", e);
-            sendErrorMessage(session, JacksonMapper.nonEmptyMapper().toJson(BaseValidatorUtils.extractPropertyAndMessageAsList(e, ",")));
-            return;
-        }
-        if (terminalReq.getType() == null) {
-            return;
-        }
         // 处理请求数据
-        switch (terminalReq.getType()) {
-            case TerminalReq.TERMINAL_COMMAND:
-                terminalTask.onCommand(terminalReq.getCommand());
+        switch (req[0]) {
+            case "stdin":
+                xtermTask.onCommand(req[1]);
                 break;
-            case TerminalReq.TERMINAL_RESIZE:
-                terminalTask.onTerminalResize(terminalReq.getColumns(), terminalReq.getRows());
+            case "set_size":
+                if (req.length >= 3) {
+                    xtermTask.onTerminalResize(Integer.parseInt(req[2]), Integer.parseInt(req[1]));
+                }
                 break;
             default:
                 log.info("不支持的操作 [{}]", message.getPayload());
