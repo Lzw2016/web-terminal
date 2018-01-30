@@ -20,9 +20,4 @@ public class HomeController {
     public String terminado() {
         return "terminado";
     }
-
-    @RequestMapping("/zmodem")
-    public String zmodem() {
-        return "zmodem";
-    }
 }

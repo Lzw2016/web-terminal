@@ -12,7 +12,7 @@
     <script src="xterm/addons/terminado/terminado.js"></script>
     <title>xterm</title>
 </head>
-<body style="margin: 0;padding: 0;overflow: hidden;cursor: text;user-select: none;">
+<body style="margin: 0;padding: 0;overflow: hidden;cursor: text;user-select: none;background: black;">
 <div id="terminal-container" style="margin: 0;padding: 0;position: absolute; width: 100%; height: 100%;"></div>
 
 <script>
