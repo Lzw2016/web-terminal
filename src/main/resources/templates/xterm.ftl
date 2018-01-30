@@ -10,7 +10,7 @@
     <script src="xterm/addons/fullscreen/fullscreen.js"></script>
     <script src="xterm/addons/search/search.js"></script>
     <script src="xterm/addons/terminado/terminado.js"></script>
-    <title>xterm</title>
+    <title>测试xterm打印</title>
 </head>
 <body style="margin: 0;padding: 0;overflow: hidden;cursor: text;user-select: none;background: black;">
 <div id="terminal-container" style="margin: 0;padding: 0;position: absolute; width: 100%; height: 100%;"></div>
@@ -29,7 +29,7 @@
         tabStopWidth: 4
     });
     var protocol = (location.protocol === 'https:') ? 'wss://' : 'ws://';
-    var socketURL = protocol + location.hostname + ((location.port) ? (':' + location.port) : '') + "/socket/xterm";
+    var socketURL = protocol + location.hostname + ((location.port) ? (':' + location.port) : '') + "/socket/mock";
     var sock = new WebSocket(socketURL);
     sock.addEventListener('open', function () {
         term.terminadoAttach(sock);

@@ -6,5 +6,6 @@ package org.pty4j.web.websocket;
  */
 public enum TaskType {
     TerminalTask,
-    XtermTask
+    XtermTask,
+    MockTask
 }

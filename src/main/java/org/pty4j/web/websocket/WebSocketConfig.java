@@ -1,6 +1,7 @@
 package org.pty4j.web.websocket;
 
 import lombok.extern.slf4j.Slf4j;
+import org.pty4j.web.websocket.mock.MockHandler;
 import org.pty4j.web.websocket.terminal.TerminalHandler;
 import org.pty4j.web.websocket.xterm.XtermHandler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,12 +20,18 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 public class WebSocketConfig implements WebSocketConfigurer {
     private final TerminalHandler terminalHandler;
     private final XtermHandler xtermHandler;
+    private final MockHandler mockHandler;
     private final WebSocketHandshakeInterceptor webSocketHandshakeInterceptor;
 
     @Autowired
-    public WebSocketConfig(TerminalHandler terminalHandler, XtermHandler xtermHandler, WebSocketHandshakeInterceptor webSocketHandshakeInterceptor) {
+    public WebSocketConfig(
+            TerminalHandler terminalHandler,
+            XtermHandler xtermHandler,
+            MockHandler mockHandler,
+            WebSocketHandshakeInterceptor webSocketHandshakeInterceptor) {
         this.terminalHandler = terminalHandler;
         this.xtermHandler = xtermHandler;
+        this.mockHandler = mockHandler;
         this.webSocketHandshakeInterceptor = webSocketHandshakeInterceptor;
     }
 
@@ -34,6 +41,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
         //WebSocket通道 withSockJS()表示开启 SockJs, SockJS 所处理的 URL 是 “http://“ 或 “https://“ 模式，而不是 “ws://“ or “wss://“
         registry.addHandler(terminalHandler, "/terminal")
                 .addHandler(xtermHandler, "/socket/xterm")
+                .addHandler(mockHandler, "/socket/mock")
                 .addInterceptors(webSocketHandshakeInterceptor)
                 .setAllowedOrigins(allowsOrigins);
         // .withSockJS();
