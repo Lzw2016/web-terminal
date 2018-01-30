@@ -65,6 +65,6 @@
     </div>
 </div>
 <p><strong>Attention:</strong> The demo is a barebones implementation and is designed for xterm.js evaluation purposes only. Exposing the demo to the public as is would introduce security risks for the host.</p>
-<script src="xterm/demo/bundle.js" defer ></script>
+<#--<script src="xterm/demo/bundle.js" defer ></script>-->
 </body>
 </html>

@@ -29,24 +29,59 @@
         fontSize: 15,
         lineHeight: 1.0,
         letterSpacing: 0,
+        scrollback: 10000,
         screenKeys: true,
         useFlowControl: true,
         tabStopWidth: 4,
         cols: 80,
-        rows: 20
+        rows: 20,
+        cursorBlink: true,
+        cursorStyle: 'bar' // block underline bar
     });
 
     var protocol = (location.protocol === 'https:') ? 'wss://' : 'ws://';
     var socketURL = protocol + location.hostname + ((location.port) ? (':' + location.port) : '') + "/socket/xterm";
     var sock = new WebSocket(socketURL);
     sock.addEventListener('open', function () {
-        // sock.send(JSON.stringify({type: "TERMINAL_RESIZE", columns: 200, rows: 30}));
         term.terminadoAttach(sock);
         term.fit();
-        console.log(term);
     });
     term.open(document.getElementById('terminal-container'));
-    term.toggleFullScreen();
+    // term.toggleFullScreen();
+
+    term.on("title", function (title) {
+        if (!title) {
+            title = 'xterm';
+        } else {
+            title = 'xterm' + title;
+        }
+        document.title = title;
+    });
+
+    term.on("resize", function (data) {
+        term.fit();
+    });
+
+    // term.on("key", function (key, e) {
+    //     console.log(key, e);
+    // });
+
+    // 右键按下 - 粘贴
+    term.element.addEventListener("mousedown", function (e) {
+        // 0-左键；1-滚轮；2-右键
+        if (e.button === 2) {
+            console.log(term.getSelection());
+        }
+    });
+
+    // 左键抬起 - 复制
+    term.element.addEventListener("mouseup", function (e) {
+        // 0-左键；1-滚轮；2-右键
+        if (e.button === 0) {
+            console.log(term.getSelection());
+        }
+    });
+
 </script>
 </body>
 </html>

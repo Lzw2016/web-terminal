@@ -3,6 +3,7 @@ package org.pty4j.web.websocket;
 import lombok.extern.slf4j.Slf4j;
 import org.pty4j.web.utils.WebSocketCloseSessionUtils;
 import org.pty4j.web.websocket.terminal.TerminalTask;
+import org.pty4j.web.websocket.xterm.XtermTask;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.AbstractWebSocketHandler;
@@ -42,7 +43,7 @@ public abstract class Handler extends AbstractWebSocketHandler {
                     String key = entry.getKey();
                     Task task = entry.getValue();
                     allSessionCount += task.getWebSocketSessionSize();
-                    if (task instanceof TerminalTask) {
+                    if (task instanceof TerminalTask || task instanceof XtermTask) {
                         task.removeCloseSession();
                         if (task.getWebSocketSessionSize() <= 0) {
                             try {
