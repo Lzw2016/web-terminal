@@ -57,6 +57,7 @@
     sock.addEventListener('open', function () {
         term.terminadoAttach(sock);
         term.fit();
+        term.focus();
     });
     term.open(terminalContainer);
     term.toggleFullScreen();

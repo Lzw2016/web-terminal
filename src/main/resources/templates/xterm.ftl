@@ -2,53 +2,78 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="xterm/xterm.css"/>
+    <link rel="stylesheet" href="xterm/addons/fullscreen/fullscreen.css"/>
+
     <script src="xterm/xterm.js"></script>
     <script src="xterm/addons/fit/fit.js"></script>
+    <script src="xterm/addons/fullscreen/fullscreen.js"></script>
+    <script src="xterm/addons/search/search.js"></script>
+    <script src="xterm/addons/terminado/terminado.js"></script>
     <title>xterm</title>
 </head>
-<body>
-<div class="container">
-    <div id="terminal-container"></div>
-</div>
+<body style="margin: 0;padding: 0;overflow: hidden;cursor: text;user-select: none;background: black;">
+<div id="terminal-container" style="margin: 0;padding: 0;position: absolute; width: 100%; height: 100%;"></div>
+</body>
 <script>
     Terminal.applyAddon(fit);
-
-
-    var term = new Terminal(); // {cols: 200, rows: 30}
-    term.open(document.getElementById('terminal-container'));
-    term.fit();
+    Terminal.applyAddon(terminado);
+    Terminal.applyAddon(fullscreen);
+    var terminalContainer = document.getElementById('terminal-container');
+    var term = new Terminal({
+        cursorBlink: true,
+        cursorStyle: 'underline', // block underline bar
+        enableBold: false,
+        bellStyle: "sound",
+        fontFamily: '"DejaVu Sans Mono", "Everson Mono", FreeMono, Menlo, Terminal, monospace, Consolas',
+        tabStopWidth: 4
+    });
     var protocol = (location.protocol === 'https:') ? 'wss://' : 'ws://';
-    var socketURL = protocol + location.hostname + ((location.port) ? (':' + location.port) : '') + "/terminal";
+    var socketURL = protocol + location.hostname + ((location.port) ? (':' + location.port) : '') + "/socket/xterm";
     var sock = new WebSocket(socketURL);
-    sock.onopen = function () {
-        term.writeln("连接一打开");
-        send({type: "TERMINAL_RESIZE", columns: 200, rows: 30}, 0);
+    sock.addEventListener('open', function () {
+        term.terminadoAttach(sock);
+        term.fit();
+        term.focus();
+    });
+    term.open(terminalContainer);
+    term.toggleFullScreen();
+    term.on("title", function (title) {
+        if (!title) {
+            title = 'xterm';
+        } else {
+            title = 'xterm' + title;
+        }
+        document.title = title;
+    });
 
-        send({type: "TERMINAL_COMMAND", command: "mvn\r"}, 2);
-        send({type: "TERMINAL_COMMAND", command: "exit\r"}, 2);
-        setTimeout(function () {
-            sock.close();
-        }, 10000);
-    };
-    sock.onmessage = function (evt) {
-        var json = JSON.parse(evt.data);
-        term.write(json.text);
-    };
-    sock.onclose = function (evt) {
-        term.writeln("关闭连接");
-    };
-    sock.onerror = function (evt) {
-        term.writeln("错误");
+    window.onresize = function () {
+        term.fit();
     };
 
-    var send = function (data, s) {
-        setTimeout(function () {
-            sock.send(JSON.stringify(data));
-        }, s * 1000);
-    }
+    // 禁用右键菜单
+    term.element.oncontextmenu = function (event) {
+        event.returnValue = false;
+    };
+
+    // 复制内容
+    var clipboard = null;
+
+    // 右键按下 - 粘贴
+    term.element.addEventListener("mousedown", function (e) {
+        e.preventDefault();
+        // 0-左键；1-滚轮；2-右键
+        if (e.button === 2 && sock.readyState === WebSocket.OPEN && clipboard) {
+            sock.send(JSON.stringify(["stdin", clipboard]));
+        }
+    });
+
+    // 左键抬起 - 复制
+    term.element.addEventListener("mouseup", function (e) {
+        // 0-左键；1-滚轮；2-右键
+        if (e.button === 0 && term.hasSelection()) {
+            clipboard = term.getSelection();
+        }
+    });
 </script>
-</body>
 </html>

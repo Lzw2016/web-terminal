@@ -11,13 +11,13 @@ public class HomeController {
         return "home";
     }
 
-    @RequestMapping("/xterm")
-    public String xterm() {
-        return "xterm";
-    }
-
     @RequestMapping("/terminado")
     public String terminado() {
         return "terminado";
+    }
+
+    @RequestMapping("/xterm")
+    public String xterm() {
+        return "xterm";
     }
 }
