@@ -2,11 +2,8 @@ package org.pty4j.web.websocket.mock;
 
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.BuildImageCmd;
-import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.LogContainerCmd;
-import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.Frame;
-import com.github.dockerjava.api.model.Ports;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.clever.common.utils.exception.ExceptionUtils;
@@ -68,29 +65,28 @@ public class MockTask extends Task {
 
     private void dockerLog() {
         dockerClientUtils.init();
-        String id = dockerClientUtils.execute(client -> {
-            // 创建容器
-            CreateContainerCmd createContainerCmd = client.createContainerCmd("a0ce313a395781940ded9938a593be77bf5b1051d69642472265bc0a7f62df4c");
-            createContainerCmd.withName("admin-demo");
-            Ports ports = new Ports();
-            ports.bind(new ExposedPort(9066), null);
-            createContainerCmd.withPortBindings(ports);
-            createContainerCmd.withPublishAllPorts(true);
-            String containerId = createContainerCmd.exec().getId();
-            // 启动容器
-            client.startContainerCmd(containerId).exec();
-            return containerId;
-        });
-
+//        String id = dockerClientUtils.execute(client -> {
+//            // 创建容器
+//            CreateContainerCmd createContainerCmd = client.createContainerCmd("a0ce313a395781940ded9938a593be77bf5b1051d69642472265bc0a7f62df4c");
+//            createContainerCmd.withName("admin-demo");
+//            Ports ports = new Ports();
+//            ports.bind(new ExposedPort(9066), null);
+//            createContainerCmd.withPortBindings(ports);
+//            createContainerCmd.withPublishAllPorts(true);
+//            String containerId = createContainerCmd.exec().getId();
+//            // 启动容器
+//            client.startContainerCmd(containerId).exec();
+//            return containerId;
+//        });
         // 监听日志
         ResultCallback resultCallback = dockerClientUtils.execute(client -> {
-            LogContainerCmd cmd = client.logContainerCmd(id);
+            LogContainerCmd cmd = client.logContainerCmd("8c9b6e02600ab327973280cc49442782c5e5f0f65ea47bc8d388c33b55f35011");
             cmd.withFollowStream(true);
             cmd.withTimestamps(false);
             cmd.withStdErr(true);
             cmd.withStdOut(true);
 //            cmd.withSince(0);
-//            cmd.withTail(1000);
+            cmd.withTail(1000);
             // cmd.withTailAll();
             return cmd.exec(new ResultCallback<Frame>() {
                 private Closeable closeable;
@@ -102,7 +98,11 @@ public class MockTask extends Task {
 
                 @Override
                 public void onNext(Frame object) {
-                    printReader(new String(object.getPayload()).replaceAll("\n", "\r\n"), "stdout");
+                    String logs = new String(object.getPayload());
+                    String[] array = logs.split("\r\n|\n");
+                    for (String log : array) {
+                        printReader(Ansi.ansi().a(log).newline().toString(), "stdout");
+                    }
                 }
 
                 @Override
