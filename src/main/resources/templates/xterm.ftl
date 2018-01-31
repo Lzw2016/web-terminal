@@ -22,10 +22,11 @@
     var terminalContainer = document.getElementById('terminal-container');
     var term = new Terminal({
         cursorBlink: true,
-        cursorStyle: 'underline', // block underline bar
+        cursorStyle: 'block', // block underline bar
         enableBold: false,
         bellStyle: "sound",
         fontFamily: '"DejaVu Sans Mono", "Everson Mono", FreeMono, Menlo, Terminal, monospace, Consolas',
+        scrollback: 10000,
         tabStopWidth: 4
     });
     var protocol = (location.protocol === 'https:') ? 'wss://' : 'ws://';

@@ -29,23 +29,29 @@ public class Test01 {
                 .ansi()
                 .reset() // 清除颜色 \033[m
 
-                .eraseScreen() // 清除屏幕 \033[2J
-                .eraseScreen(Ansi.Erase.BACKWARD) // 清除屏幕 \033[1J
-                .eraseScreen(Ansi.Erase.FORWARD) // 清除屏幕 \033[0J
-                .eraseLine() //清除一行 \033[K
-                .eraseLine(Ansi.Erase.BACKWARD) //清除一行 \033[1K
-                .eraseLine(Ansi.Erase.FORWARD) //清除一行 \033[0K
+                // 清除屏幕 光标位置不会动
+                .eraseScreen() // 清除屏幕(所有) \033[2J
+                .eraseScreen(Ansi.Erase.BACKWARD) // 清除屏幕(前面的内容) \033[1J
+                .eraseScreen(Ansi.Erase.FORWARD) // 清除屏幕(后面的内容) \033[0J
+
+                // 清除一行 光标位置不会动
+                .eraseLine() //清除一行(只清除光标后面的内容) \033[K
+                .eraseLine(Ansi.Erase.BACKWARD) //清除一行(只清除光标前面的内容) \033[1K
+                .eraseLine(Ansi.Erase.FORWARD) //清除一行(只清除光标后面的内容) \033[0K
 
                 .cursorUp(5) // 光标上移
                 .cursorDown(5) // 光标下移
                 .cursorLeft(5) // 光标左移
                 .cursorRight(5) // 光标右移
+
+                // 上下移行 光标会到第一列
                 .cursorDownLine() // 向下换行
                 .cursorDownLine(5) // 向下换行
                 .cursorUpLine() // 向上换行
                 .cursorUpLine(5) // 向上换行
-                .cursorToColumn(5)
-                .cursor(1, 1)
+
+                .cursorToColumn(5) // 移动光标到第几列
+                .cursor(1, 1) // 设置光标位置
                 .restoreCursorPosition() // 取出保存的光标位置来使用
                 .saveCursorPosition() // 保存目前的光标位置
                 .newline() // 回车换行

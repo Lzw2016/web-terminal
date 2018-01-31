@@ -1,9 +1,11 @@
 package org.pty4j.web.websocket.mock;
 
 import lombok.extern.slf4j.Slf4j;
-import org.fusesource.jansi.Ansi;
+import org.eclipse.jgit.lib.ProgressMonitor;
 import org.pty4j.web.websocket.Task;
 import org.pty4j.web.websocket.TaskType;
+import org.pty4j.web.websocket.mock.git.GitProgressMonitor;
+import org.pty4j.web.websocket.mock.git.GitUtils;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -40,18 +42,19 @@ public class MockTask extends Task {
      */
     @Override
     public void run() {
-        for (int i = 0; i < 100; i++) {
-            String str = Ansi.ansi()
-                    .fgRed().a("Ansi打印测试 ").a(i).reset()
-                    .fgGreen().a(" Ansi打印测试 ").a(i).reset()
-                    .fgGreen().a(" Ansi打印测试 ").a(i).reset().newline().toString();
-            printReader(str, "stdout");
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ignored) {
-            }
-        }
-        printReader("MockTask 退出", "stdout");
+        git();
+    }
+
+    /**
+     * 测试Git下载
+     */
+    private void git() {
+        String directory = "G:\\CodeDownloadPath\\" + UUID.randomUUID().toString();
+        String repositoryUrl = "https://github.com/spotify/docker-client.git";
+        String commitId = "9bc725cb7f3e78fe635cae7ae43a1443072e2871";
+        ProgressMonitor progressMonitor = new GitProgressMonitor(msg -> printReader(msg, "stdout"));
+        GitUtils.downloadCode(directory, repositoryUrl, commitId, progressMonitor);
+        printReader("\r\nMockTask 退出", "stdout");
     }
 
     /**
