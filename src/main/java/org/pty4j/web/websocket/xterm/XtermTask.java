@@ -71,15 +71,15 @@ public class XtermTask extends Task {
         String userHome = System.getProperty("user.home");
         process = PtyProcess.exec(termCommand, envs, userHome, false, false, null);
         process.setWinSize(new WinSize(80, 10));
-        new Thread(() -> printReader(process.getInputStream(),"stdout")).start(); // stdout
-        new Thread(() -> printReader(process.getErrorStream(),"stdout")).start(); // stderr
+        new Thread(() -> printReader(process.getInputStream(), "stdout")).start(); // stdout
+        new Thread(() -> printReader(process.getErrorStream(), "stdout")).start(); // stderr
         outputWriter = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
     }
 
     /**
      * 打印输出到终端
      */
-    private void printReader(InputStream inputStream,String stdType) {
+    private void printReader(InputStream inputStream, String stdType) {
         try {
             int nRead;
             byte[] data = new byte[1024];

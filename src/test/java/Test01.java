@@ -77,7 +77,7 @@ public class Test01 {
 
     @Test
     public void t01() {
-        String[] str = "123\r\n456\r\n789\n000".split("\r\n|\n");
+        String[] str = "123\r\n456\r\n789\n000\r\n".split("\r\n|\n");
         System.out.println(str.length);
         for (String s : str) {
             System.out.println(s);
