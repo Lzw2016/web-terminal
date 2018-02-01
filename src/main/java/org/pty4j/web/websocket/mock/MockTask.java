@@ -58,9 +58,16 @@ public class MockTask extends Task {
      */
     @Override
     public void run() {
+        for (int i = 0; i < 10; i++) {
+            StringBuilder sb = new StringBuilder();
+            for (int j = 0; j < 100; j++) {
+                sb.append(i).append(' ');
+            }
+            printReader(Ansi.ansi().a(sb.toString()).newline().reset().toString(), "stdout");
+        }
 //        git();
-//        docker();
-        dockerLog();
+        docker();
+//        dockerLog();
     }
 
     private void dockerLog() {

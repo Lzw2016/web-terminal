@@ -71,7 +71,6 @@ public class BuildImageProgressMonitor extends BuildImageResultCallback {
 
     @Override
     public void onNext(BuildResponseItem item) {
-        System.out.println(item);
         super.onNext(item);
         Ansi ansi = Ansi.ansi();
         TaskInfo taskInfo = taskInfoList.stream().filter(task -> item.getId() != null && item.getId().equals(task.taskId)).findFirst().orElse(null);
